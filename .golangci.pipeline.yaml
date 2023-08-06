@@ -31,17 +31,16 @@ linters-settings:
 linters:
   disable-all: true
   enable:
-    # - dupl - it's very slow, enable if you really know why you need it
     - errcheck
     - goconst
     - goimports
     - gosec
     - govet
     - ineffassign
-    - megacheck # (staticcheck + gosimple + unused in one linter)
+    - megacheck
     - revive
     - typecheck
-    - unused # will be used insted of varcheck + deadcode + structcheck. More info https://github.com/golangci/golangci-lint/issues/1841
+    - unused
 
 issues:
   exclude-use-default: false
