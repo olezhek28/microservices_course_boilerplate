@@ -1,6 +1,6 @@
 module github.com/MikhailRibalkov/chat-server/pkg/chatServer_v1
 
-go 1.21.1
+go 1.21
 
 require (
 	google.golang.org/grpc v1.57.0
