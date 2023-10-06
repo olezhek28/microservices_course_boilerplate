@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package chatServer_v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "github.com/MikhailRibalkov/chat-server/pkg/chatServer_v1;chatServer_v1";
+
+service ChatServerV1 {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+  rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty);
+}
+
+message CreateRequest {
+  repeated string usernames = 1;
+}
+
+message CreateResponse {
+  int64 id = 1;
+}
+
+message DeleteRequest {
+  int64 id = 1;
+}
+
+message SendMessageRequest {
+  string from = 1;
+  string text = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
