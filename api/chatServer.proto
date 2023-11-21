@@ -11,6 +11,7 @@ option go_package = "github.com/MikhailRibalkov/chat-server/pkg/chatServer_v1;ch
 service ChatServerV1 {
   rpc Create(CreateRequest) returns (CreateResponse);
   rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+  rpc Connect(ConnectRequest) returns (ConnectResponse);
   rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty);
 }
 
@@ -23,6 +24,14 @@ message CreateResponse {
 }
 
 message DeleteRequest {
+  int64 id = 1;
+}
+
+message ConnectRequest {
+  int64 id = 1;
+}
+
+message ConnectResponse {
   int64 id = 1;
 }
 
