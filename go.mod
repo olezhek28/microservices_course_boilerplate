@@ -1,6 +1,6 @@
 module github.com/olezhek28/microservices_course_boilerplate
 
-go 1.20
+go 1.22
 
 require (
 	github.com/fatih/color v1.15.0 // indirect
