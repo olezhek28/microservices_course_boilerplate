@@ -1,2 +1,6 @@
 .idea
 /bin/
+/vendor/
+*.csv
+*.log
+.env

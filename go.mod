@@ -1,10 +1,10 @@
-module github.com/olezhek28/microservices_course_boilerplate
+module github.com/Tel3scop/microservices_course_boilerplate
 
-go 1.20
+go 1.21
 
 require (
-	github.com/fatih/color v1.15.0 // indirect
+	github.com/fatih/color v1.16.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
-	golang.org/x/sys v0.6.0 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
+	golang.org/x/sys v0.17.0 // indirect
 )
