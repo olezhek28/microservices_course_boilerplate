@@ -1,4 +1,4 @@
-# microservices_course_boilerplate
+# auth
 
 Данный репозиторий содержит boilerplate для выполнения домашних заданий по курсу ["Микросервисы как в BigTech-компаниях"](https://olezhek28.courses/).
 
