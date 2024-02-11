@@ -8,7 +8,7 @@ import "google/protobuf/wrappers.proto";
 
 option go_package = "github.com/sarastee/auth/pkg/user_api_v1;user_api_v1";
 
-service AuthV1 {
+service UserAPIV1 {
   rpc Create(CreateRequest) returns (CreateResponse);
   rpc Get(GetRequest) returns (GetResponse);
   rpc Update(UpdateRequest) returns (google.protobuf.Empty);
@@ -16,8 +16,9 @@ service AuthV1 {
 }
 
 enum Role {
-  user = 0;
-  admin = 1;
+  unknown = 0;
+  user = 1;
+  admin = 2;
 }
 
 message UserInfo {
@@ -28,7 +29,7 @@ message UserInfo {
 
 message User {
   int64 id = 1;
-  UserInfo user = 2;
+  UserInfo info = 2;
   google.protobuf.Timestamp created_at = 3;
   google.protobuf.Timestamp updated_at = 4;
 }
@@ -36,7 +37,7 @@ message User {
 message UpdateUserInfo {
   google.protobuf.StringValue name = 1;
   google.protobuf.StringValue email = 2;
-  string role = 3;
+  Role role = 3;
 }
 
 message CreateRequest{
