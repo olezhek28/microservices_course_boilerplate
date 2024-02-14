@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	desc "github.com/sarastee/auth/pkg/user_api_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -20,7 +21,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect to server: %v", err)
 	}
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		if err = conn.Close(); err != nil {
+			log.Fatalf("failed to close connection: %v", err)
+		}
+	}(conn)
 
 	c := desc.NewUserAPIV1Client(conn)
 
@@ -47,7 +52,7 @@ func main() {
 		log.Fatalf("User ID: %v not found", r.Id)
 	}
 
-	log.Printf(testUser.User.String())
+	log.Println(testUser.User.String())
 
 	_, err = c.Update(ctx, &desc.UpdateRequest{
 		Id: 0,
@@ -57,6 +62,9 @@ func main() {
 			Role:  2,
 		},
 	})
+	if err != nil {
+		log.Fatalf("failed to update ser ID: %v", r.Id)
+	}
 
 	testUser, err = c.Get(ctx, &desc.GetRequest{
 		Id: r.Id,
@@ -65,7 +73,7 @@ func main() {
 		log.Fatalf("User ID: %v not found", r.Id)
 	}
 
-	log.Printf(testUser.User.String())
+	log.Println(testUser.User.String())
 
 	_, err = c.Delete(ctx, &desc.DeleteRequest{
 		Id: 0,

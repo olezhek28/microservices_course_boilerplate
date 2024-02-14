@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"log"
-	"net"
 
 	"github.com/brianvoe/gofakeit/v6"
 	desc "github.com/sarastee/auth/pkg/user_api_v1"
@@ -23,7 +24,7 @@ type server struct {
 var testUser *desc.User
 
 // Create User
-func (s *server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.CreateResponse, error) {
+func (s *server) Create(_ context.Context, _ *desc.CreateRequest) (*desc.CreateResponse, error) {
 
 	testUser = &desc.User{
 		Id: 0,
@@ -46,7 +47,7 @@ func (s *server) Create(ctx context.Context, req *desc.CreateRequest) (*desc.Cre
 }
 
 // Get User info
-func (s *server) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
+func (s *server) Get(_ context.Context, req *desc.GetRequest) (*desc.GetResponse, error) {
 
 	if req.Id != testUser.Id {
 		log.Printf("User with id: %v not found", req.Id)
@@ -62,7 +63,7 @@ func (s *server) Get(ctx context.Context, req *desc.GetRequest) (*desc.GetRespon
 }
 
 // Update User
-func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
+func (s *server) Update(_ context.Context, req *desc.UpdateRequest) (*emptypb.Empty, error) {
 
 	testUser.Info = &desc.UserInfo{
 		Name:  req.Update.Name.Value,
@@ -77,7 +78,7 @@ func (s *server) Update(ctx context.Context, req *desc.UpdateRequest) (*emptypb.
 }
 
 // Delete User
-func (s *server) Delete(ctx context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
+func (s *server) Delete(_ context.Context, req *desc.DeleteRequest) (*emptypb.Empty, error) {
 	if req.Id != testUser.Id {
 		log.Printf("User with id: %v not found", req.Id)
 		return nil, fmt.Errorf("user not found")
