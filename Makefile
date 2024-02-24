@@ -26,3 +26,8 @@ generate-user-api:
 	--go-grpc_out=pkg/user_v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
 	api/user_v1/user.proto
+
+docker-build-and-push:
+	docker buildx build --no-cache --platform linux/amd64 -t cr.selcloud.ru/github/auth-server:v0.0.1 .
+	docker login -u token -p CRgAAAAApnpgjELi4YJwGUDcaIei0x62XkrajEPB cr.selcloud.ru/github
+	docker push cr.selcloud.ru/github/auth-server:v0.0.1

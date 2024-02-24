@@ -32,5 +32,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to get user by id: %v", err)
 	}
+
 	log.Printf(color.RedString("User info: \n"), color.GreenString("%+v", r.Name))
 }

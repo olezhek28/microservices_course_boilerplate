@@ -60,6 +60,8 @@ func main() {
 	reflection.Register(s)
 	user_v1.RegisterUserV1Server(s, &server{})
 
+	log.Printf("server listening at %v", lis.Addr())
+
 	if err = s.Serve(lis); err != nil {
 		log.Fatal(err)
 	}
