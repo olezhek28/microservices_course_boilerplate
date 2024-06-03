@@ -7,5 +7,5 @@ import (
 )
 
 func main() {
-	fmt.Println(color.GreenString("WOW"))
+	fmt.Println(color.GreenString("WOWWW"))
 }
