@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package user_v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "github.com/neracastle/auth/pkg/user_v1;user_v1";
+
+service UserV1 {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc Update(UpdateRequest) returns (google.protobuf.Empty);
+  rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+}
+
+message User {
+  string name = 1;
+  string email = 2;
+  Role role = 3;
+}
+
+enum Role {
+  USER = 0;
+  ADMIN = 1;
+}
+
+message CreateRequest {
+  User user = 1;
+  string password = 2;
+  string password_confirm = 3;
+}
+
+message CreateResponse {
+  int64 id = 1;
+}
+
+message GetRequest {
+  int64 id = 1;
+}
+
+message GetResponse {
+  int64 id = 1;
+  User user = 2;
+  google.protobuf.Timestamp created_at = 3;
+  google.protobuf.Timestamp updated_at = 4;
+}
+
+message UpdateRequest {
+  int64 id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue email = 3;
+  Role role = 4;
+}
+
+message DeleteRequest {
+  int64 id = 1;
+}
