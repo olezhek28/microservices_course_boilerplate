@@ -1,4 +1,4 @@
-module github.com/olezhek28/microservices_course_boilerplate
+module github.com/tempdos/microservices_olezhek
 
 go 1.20
 
