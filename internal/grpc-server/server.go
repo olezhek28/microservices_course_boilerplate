@@ -2,11 +2,13 @@ package grpc_server
 
 import (
 	"context"
+	"log"
+
 	"github.com/brianvoe/gofakeit"
-	userdesc "github.com/neracastle/auth/pkg/user_v1"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"log"
+
+	userdesc "github.com/neracastle/auth/pkg/user_v1"
 )
 
 type Server struct {
@@ -33,7 +35,7 @@ func (s *Server) Get(ctx context.Context, req *userdesc.GetRequest) (*userdesc.G
 }
 
 func (s *Server) Update(ctx context.Context, req *userdesc.UpdateRequest) (*emptypb.Empty, error) {
-	if req.Role == nil {
+	if req.GetRole() == userdesc.Role_UNKNOWN {
 		log.Printf("called Update method with empty role: %v", req)
 	} else {
 		log.Printf("called Update method with setted role: %v", req)
