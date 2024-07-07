@@ -1,8 +1,9 @@
 package config
 
 import (
-	"github.com/ilyakaznacheev/cleanenv"
 	"log"
+
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type GRPCConfig struct {
