@@ -7,8 +7,8 @@ import (
 )
 
 type GRPCConfig struct {
-	Host string `yaml:"host" env:"HOST" env-default:"0.0.0.0"`
-	Port int    `yaml:"port" env:"PORT" env-default:"50500"`
+	Host string `yaml:"host" env:"GHOST" env-default:"0.0.0.0"`
+	Port int    `yaml:"port" env:"GPORT" env-default:"50500"`
 }
 
 func MustLoad() GRPCConfig {

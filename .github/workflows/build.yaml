@@ -1,30 +1,14 @@
-name: Go
+name: Build image
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: auth-service
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-        - uses: actions/checkout@v3
-
-        - name: Set up Go
-          uses: actions/setup-go@v4
-          with:
-            go-version: '1.20'
-            cache-dependency-path: go.sum
-
-        - name: Build
-          run: go build -o ./bin/ -v ./...
-
-        - name: Test
-          run: go test -v ./...
-
-  linter:
+  linter_and_test:
     name: lint
     runs-on: ubuntu-latest
     steps:
@@ -65,3 +49,59 @@ jobs:
 
           # Optional: The mode to install golangci-lint. It can be 'binary' or 'goinstall'.
           # install-mode: "goinstall"
+
+      - name: Test
+        run: go test -v ./...
+
+  build:
+    runs-on: ubuntu-latest
+    needs: linter_and_test
+    steps:
+        - uses: actions/checkout@v3.1.0
+
+        - name: Login to registry
+          uses: docker/login-action@v2
+          with:
+            registry: ${{ env.REGISTRY }}
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: Docker meta
+          id: meta
+          uses: docker/metadata-action@v3
+          with:
+            images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            tags: type=sha
+
+        - name: Build docker image
+          timeout-minutes: 7
+          id: build
+          uses: docker/build-push-action@v4
+          with:
+            context: .
+            push: true
+            tags: ${{ steps.meta.outputs.tags }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Login to registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      #- name: Deploy
+      #  run: |
+      #    export IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.steps.meta.outputs.tags }}
+      #    echo $IMAGE
+      #    docker pull $IMAGE
+      #    docker stop auth-service ||:
+      #    docker rm auth-service   ||:
+      #    docker-compose up -d
