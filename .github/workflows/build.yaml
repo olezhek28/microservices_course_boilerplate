@@ -6,6 +6,8 @@ on:
 env:
   REGISTRY: ghcr.io/neracastle
   IMAGE_NAME: auth-service
+  GHOST: 127.0.0.1
+  GPORT: 50501
 
 jobs:
   linter_and_test:
@@ -83,9 +85,12 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSHKEY }}
-          envs: IMAGE_NAME,REGISTRY
+          envs: IMAGE_NAME,REGISTRY,GHOST,GPORT
           script: |
-            IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tags }}
+            IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.sha-tag.tags }}
             echo $IMAGE
             docker pull $IMAGE
-            docker compose up -d
+            docker stop auth-service
+            docker rm auth-service
+          
+            docker run -d -p $GPORT:$GPORT --env GHOST=$GHOST --env GPORT=$GPORT --name auth-service -t $IMAGE
