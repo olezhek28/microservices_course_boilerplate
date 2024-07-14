@@ -70,6 +70,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Commit SHA tag
+        id: sha-tag
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: type=sha
+
       - name: Deploy to Selectel
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -78,8 +85,7 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           envs: IMAGE_NAME,REGISTRY
           script: |
-            IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.build.steps.meta.outputs.tags }}
+            IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tags }}
             echo $IMAGE
-            docker stop auth-service
-            docker rm auth-service
-            docker-compose up -d
+            docker pull $IMAGE
+            docker compose up -d
