@@ -20,7 +20,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
-          version: v1.53`
+          version: v1.59
           args: --timeout=30m --config=./.golangci.pipeline.yaml --issues-exit-code=0
 
       - name: Test
