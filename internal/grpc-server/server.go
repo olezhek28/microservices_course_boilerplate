@@ -16,12 +16,14 @@ type Server struct {
 	userdesc.UnimplementedUserV1Server
 }
 
+// Create регистрирует нового пользователя
 func (s *Server) Create(ctx context.Context, req *userdesc.CreateRequest) (*userdesc.CreateResponse, error) {
 	log.Printf("called Create method with req: %v", req)
 
 	return &userdesc.CreateResponse{Id: gofakeit.Int64()}, nil
 }
 
+// Get возвращает данные клиента
 func (s *Server) Get(ctx context.Context, req *userdesc.GetRequest) (*userdesc.GetResponse, error) {
 	log.Printf("called Get method with req: %v", req)
 
@@ -35,6 +37,7 @@ func (s *Server) Get(ctx context.Context, req *userdesc.GetRequest) (*userdesc.G
 	}, nil
 }
 
+// Update обновляет данные клиента
 func (s *Server) Update(ctx context.Context, req *userdesc.UpdateRequest) (*emptypb.Empty, error) {
 	if req.GetRole() == userdesc.Role_UNKNOWN {
 		log.Printf("called Update method with empty role: %v", req)
@@ -45,6 +48,7 @@ func (s *Server) Update(ctx context.Context, req *userdesc.UpdateRequest) (*empt
 	return &emptypb.Empty{}, nil
 }
 
+// Delete удаляет клиента из базы
 func (s *Server) Delete(ctx context.Context, req *userdesc.DeleteRequest) (*emptypb.Empty, error) {
 	log.Printf("called Delete method with req: %v", req)
 

@@ -9,3 +9,6 @@ services:
     ports:
       - "127.0.0.1:50501:8080"
     restart: always
+
+  pg:
+    image: postgres:15-alpine3.19

@@ -81,9 +81,8 @@ jobs:
           envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,GHOST,GPORT
           script: |
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
-            IMAGE=$REGISTRY/$IMAGE_NAME:$TAG_NAME
+            IMAGE=$REGISTRY/$IMAGE_NAME:sha-$TAG_NAME
             echo $IMAGE
-            docker pull $IMAGE
             docker stop auth-service
             docker rm auth-service
           
