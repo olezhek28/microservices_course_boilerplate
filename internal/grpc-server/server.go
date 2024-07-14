@@ -11,6 +11,7 @@ import (
 	userdesc "github.com/neracastle/auth/pkg/user_v1"
 )
 
+// Server GRPC сервер с ручками сервиса auth
 type Server struct {
 	userdesc.UnimplementedUserV1Server
 }
