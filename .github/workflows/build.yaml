@@ -6,7 +6,6 @@ on:
 env:
   REGISTRY: ghcr.io/neracastle
   IMAGE_NAME: auth-service
-  GHOST: 127.0.0.1
   GPORT: 50501
 
 jobs:
@@ -78,7 +77,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSHKEY }}
-          envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,GHOST,GPORT
+          envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,GPORT
           script: |
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
             IMAGE=$REGISTRY/$IMAGE_NAME:sha-$TAG_NAME
@@ -86,4 +85,4 @@ jobs:
             docker stop auth-service
             docker rm auth-service
           
-            docker run -d -p $GPORT:$GPORT --env GHOST=$GHOST --env GPORT=$GPORT --name auth-service -t $IMAGE
+            docker run -d -p $GPORT:$GPORT --env GPORT=$GPORT --name auth-service -t $IMAGE
