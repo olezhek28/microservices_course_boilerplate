@@ -4,7 +4,6 @@ package user_v1;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
-import "google/protobuf/wrappers.proto";
 
 option go_package = "github.com/neracastle/auth/pkg/user_v1;user_v1";
 
@@ -48,8 +47,8 @@ message GetResponse {
 
 message UpdateRequest {
   int64 id = 1;
-  google.protobuf.StringValue name = 2;
-  google.protobuf.StringValue email = 3;
+  optional string name = 2;
+  optional string email = 3;
   Role role = 4;
 }
 

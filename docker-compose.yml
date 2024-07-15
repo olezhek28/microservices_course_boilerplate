@@ -1,14 +1,48 @@
-version: '2'
+version: '3'
 services:
-  auth-service:
-    image: "${IMAGE}"
-    container_name: auth-service
-    environment:
-      GHOST: 127.0.0.1
-      GPORT: 50501
-    ports:
-      - "127.0.0.1:50501:8080"
-    restart: always
-
   pg:
     image: postgres:15-alpine3.19
+    environment:
+      - "POSTGRES_DB=${PG_DBNAME}"
+      - "POSTGRES_USER=${PG_USER}"
+      - "POSTGRES_PASSWORD=${PG_PWD}"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg:/var/lib/postgresql/data
+
+  migrator:
+    depends_on:
+      - pg
+    build:
+      context: .
+      dockerfile: migrations/Dockerfile
+    restart: on-failure
+    environment:
+      - "PG_HOST=pg"
+      - "PG_PORT=5432"
+      - "PG_USER=${PG_USER}"
+      - "PG_PWD=${PG_PWD}"
+      - "PG_DBNAME=${PG_DBNAME}"
+
+  auth-service:
+    depends_on:
+      - pg
+    build:
+      context: .
+    container_name: auth-service
+    environment:
+      - "ENV=local"
+      - "GRPC_PORT=${GRPC_PORT}"
+      - "PG_HOST=pg"
+      - "PG_PORT=5432"
+      - "PG_USER=${PG_USER}"
+      - "PG_PWD=${PG_PWD}"
+      - "PG_DBNAME=${PG_DBNAME}"
+    ports:
+      - "0.0.0.0:${GRPC_PORT}:8080"
+    restart: always
+
+volumes:
+  pg:
+    driver: local
