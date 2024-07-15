@@ -15,12 +15,5 @@ func AssignLogger(ctx context.Context, logger *slog.Logger) context.Context {
 
 // GetLogger получает логгер из контекста
 func GetLogger(ctx context.Context) *slog.Logger {
-
-	v := ctx.Value("logger")
-
-	if v != nil {
-		return v.(*slog.Logger)
-	}
-
 	return ctx.Value("logger").(*slog.Logger)
 }
