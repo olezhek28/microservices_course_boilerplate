@@ -1,5 +1,4 @@
 #!/bin/bash
-source .env
 
 export MIGRATION_DSN="host=$PG_HOST port=$PG_PORT dbname=$PG_DBNAME user=$PG_USER password=$PG_PWD sslmode=disable"
 
