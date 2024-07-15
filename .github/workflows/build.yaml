@@ -112,6 +112,7 @@ jobs:
             docker rm auth-service auth-migration
             
             docker run -d --name auth-migration \
+            --add-host=host.docker.internal:host-gateway \
             --env PG_HOST=$PG_HOST \
             --env PG_PORT=$PG_PORT \
             --env PG_USER=$PG_USER \
