@@ -56,7 +56,7 @@ jobs:
       - name: Build service image
         timeout-minutes: 7
         id: build
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -72,9 +72,10 @@ jobs:
       - name: Build migrations image
         timeout-minutes: 7
         id: build-migrations
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
-          context: ./migrations
+          context: .
+          file: migrations/Dockerfile
           push: true
           tags: ${{ steps.meta-migration.outputs.tags }}
 
