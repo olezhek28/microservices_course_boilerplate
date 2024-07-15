@@ -91,6 +91,7 @@ jobs:
             docker rm auth-service
             
             docker run -d -p $GRPC_PORT:$GRPC_PORT \
+            --add-host=host.docker.internal:host-gateway
             --env ENV=local \
             --env GRPC_PORT=$GRPC_PORT \
             --env PG_HOST=$PG_HOST \

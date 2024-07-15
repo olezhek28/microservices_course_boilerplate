@@ -46,9 +46,9 @@ func MustLoad() Config {
 		if cfgPath == "" {
 			if _, err := os.Stat(LocalConfigPath); os.IsNotExist(err) {
 				log.Fatalf("config path not set and env reading error: %v", errEnv)
-			} else {
-				cfgPath = LocalConfigPath
 			}
+
+			cfgPath = LocalConfigPath
 		}
 
 		if _, err := os.Stat(cfgPath); os.IsNotExist(err) {

@@ -7,6 +7,7 @@ import (
 
 var _ User = (*user)(nil)
 
+// User агрегат доменного слоя, представляет пользователя и его бизнес-логику
 type User interface {
 	GetID() int64
 	GetName() string
