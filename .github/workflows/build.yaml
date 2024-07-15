@@ -6,6 +6,7 @@ on:
 env:
   REGISTRY: ghcr.io/neracastle
   IMAGE_NAME: auth-service
+  IMAGE_MIGRATION_NAME: auth-migrations
   GRPC_PORT: 50501
   PG_HOST: host.docker.internal
   PG_PORT: 5432
@@ -52,7 +53,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: type=sha
 
-      - name: Build docker image
+      - name: Build service image
         timeout-minutes: 7
         id: build
         uses: docker/build-push-action@v4
@@ -60,6 +61,22 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Docker meta
+        id: meta-migration
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_MIGRATION_NAME }}
+          tags: type=sha
+
+      - name: Build migrations image
+        timeout-minutes: 7
+        id: build-migrations
+        uses: docker/build-push-action@v4
+        with:
+          context: ./migrations
+          push: true
+          tags: ${{ steps.meta-migration.outputs.tags }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -82,14 +99,17 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSHKEY }}
-          envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,GRPC_PORT,PG_HOST,PG_PORT,PG_USER,PG_PWD,PG_DBNAME
+          envs: IMAGE_NAME,IMAGE_MIGRATION_NAME,REGISTRY,GITHUB_SHA,GRPC_PORT,PG_HOST,PG_PORT,PG_USER,PG_PWD,PG_DBNAME
           script: |
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
             IMAGE=$REGISTRY/$IMAGE_NAME:sha-$TAG_NAME
+            IMAGE_MIGRATION=$REGISTRY/$IMAGE_MIGRATION_NAME:sha-$TAG_NAME
             echo $IMAGE
+            echo $IMAGE_MIGRATION
             docker stop auth-service
-            docker rm auth-service
+            docker rm auth-service auth-migration
             
+            docker run -d --name auth-migration -t $IMAGE_MIGRATION
             docker run -d -p $GRPC_PORT:$GRPC_PORT \
             --add-host=host.docker.internal:host-gateway \
             --env ENV=local \
