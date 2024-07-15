@@ -2,6 +2,7 @@ name: Build image
 
 on:
   push:
+    branches-ignore: [ main ]
 
 env:
   REGISTRY: ghcr.io/neracastle
