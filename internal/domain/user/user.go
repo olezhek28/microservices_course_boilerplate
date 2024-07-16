@@ -84,6 +84,7 @@ func (u *user) SetIsUser() {
 	u.isAdmin = false
 }
 
+// NewUser создает нового пользователя
 func NewUser(name string, password string, email string) (User, error) {
 	if email == "" {
 		return &user{}, errors.New("email не может быть пустым")
@@ -101,6 +102,7 @@ func NewUser(name string, password string, email string) (User, error) {
 	}, nil
 }
 
+// NewAdmin Создает нового пользователя с ролью Admin
 func NewAdmin(name string, password string, email string) (User, error) {
 	usr, err := NewUser(name, password, email)
 	if err != nil {

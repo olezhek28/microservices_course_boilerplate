@@ -8,6 +8,8 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
+const LocalConfigPath = "./local.yaml"
+
 // Config Конфиги grpc сервера, бд и прочего. Можно задавать через env, можно в yml конфиге
 type Config struct {
 	Env string `yaml:"env" env:"ENV" env-required:"true"`
@@ -15,11 +17,13 @@ type Config struct {
 	Postgres
 }
 
+// GRPC настройки grpc сервера
 type GRPC struct {
 	Host string `yaml:"host" env:"GRPC_HOST" env-default:"0.0.0.0"`
 	Port int    `yaml:"port" env:"GRPC_PORT" env-required:"true"`
 }
 
+// Postgres настройки подключения в бд
 type Postgres struct {
 	Host     string `yaml:"host" env:"PG_HOST" env-default:"0.0.0.0"`
 	Port     int    `yaml:"port" env:"PG_PORT" env-default:"5432"`
@@ -32,33 +36,33 @@ func (p Postgres) DSN() string {
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", p.Host, p.Port, p.User, p.Password, p.Dbname)
 }
 
-const LocalConfigPath = "./local.yaml"
-
 func MustLoad() Config {
 
 	var cfg Config
 
 	errEnv := cleanenv.ReadEnv(&cfg)
+	if errEnv == nil {
+		return cfg
+	}
+
 	//если из окружения не получили нужные параметры, пробуем взять конфиг файл
-	if errEnv != nil {
-		cfgPath := os.Getenv("CONFIG_PATH")
+	cfgPath := os.Getenv("CONFIG_PATH")
 
-		if cfgPath == "" {
-			if _, err := os.Stat(LocalConfigPath); os.IsNotExist(err) {
-				log.Fatalf("config path not set and env reading error: %v", errEnv)
-			}
-
-			cfgPath = LocalConfigPath
+	if cfgPath == "" {
+		if _, err := os.Stat(LocalConfigPath); os.IsNotExist(err) {
+			log.Fatalf("config path not set and env reading error: %v", errEnv)
 		}
 
-		if _, err := os.Stat(cfgPath); os.IsNotExist(err) {
-			log.Fatalf("config file not exists: %s", cfgPath)
-		}
+		cfgPath = LocalConfigPath
+	}
 
-		err := cleanenv.ReadConfig(cfgPath, &cfg)
-		if err != nil {
-			log.Fatalf("failed to read config file: %s", err)
-		}
+	if _, err := os.Stat(cfgPath); os.IsNotExist(err) {
+		log.Fatalf("config file not exists: %s", cfgPath)
+	}
+
+	err := cleanenv.ReadConfig(cfgPath, &cfg)
+	if err != nil {
+		log.Fatalf("failed to read config file: %s", err)
 	}
 
 	return cfg
