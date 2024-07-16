@@ -1,7 +1,7 @@
-version: '3'
 services:
   pg:
     image: postgres:15-alpine3.19
+    container_name: pg
     environment:
       - "POSTGRES_DB=${PG_DBNAME}"
       - "POSTGRES_USER=${PG_USER}"
@@ -10,10 +10,14 @@ services:
       - "5432:5432"
     volumes:
       - pg:/var/lib/postgresql/data
+    networks:
+      - shared
 
   migrator:
+    container_name: auth-migrator
     depends_on:
       - pg
+    image: "ghcr.io/neracastle/auth-migrator:sha-${TAG_NAME}"
     build:
       context: .
       dockerfile: migrations/Dockerfile
@@ -24,10 +28,15 @@ services:
       - "PG_USER=${PG_USER}"
       - "PG_PWD=${PG_PWD}"
       - "PG_DBNAME=${PG_DBNAME}"
+    networks:
+      - shared
+    links:
+      - pg
 
   auth-service:
     depends_on:
       - pg
+    image: "ghcr.io/neracastle/auth-service:sha-${TAG_NAME}"
     build:
       context: .
     container_name: auth-service
@@ -40,9 +49,17 @@ services:
       - "PG_PWD=${PG_PWD}"
       - "PG_DBNAME=${PG_DBNAME}"
     ports:
-      - "0.0.0.0:${GRPC_PORT}:8080"
+      - "${GRPC_PORT}:${GRPC_PORT}"
     restart: always
+    networks:
+      - shared
+    links:
+      - pg
 
 volumes:
   pg:
     driver: local
+
+networks:
+  shared:
+    name: service-net
