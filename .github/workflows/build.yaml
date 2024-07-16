@@ -1,0 +1,115 @@
+name: Build image
+
+on:
+  push:
+    branches-ignore: [ main ]
+
+env:
+  REGISTRY: ghcr.io/neracastle
+  IMAGE_NAME: auth-service
+  IMAGE_MIGRATION_NAME: auth-migrations
+  GRPC_PORT: 50501
+  PG_HOST: pg
+  PG_PORT: 5432
+  PG_USER: ${{ secrets.PG_USER }}
+  PG_PWD: ${{ secrets.PG_PWD }}
+  PG_DBNAME: ${{ secrets.PG_DBNAME }}
+
+jobs:
+  linter_and_test:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.20'
+          cache: false
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.59
+          args: --timeout=30m --config=./.golangci.pipeline.yaml --issues-exit-code=0
+
+      - name: Test
+        run: go test -v ./...
+
+  build:
+    runs-on: ubuntu-latest
+    needs: linter_and_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: type=sha
+
+      - name: Build service image
+        timeout-minutes: 7
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Docker meta
+        id: meta-migration
+        uses: docker/metadata-action@v3
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_MIGRATION_NAME }}
+          tags: type=sha
+
+      - name: Build migrations image
+        timeout-minutes: 7
+        id: build-migrations
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: migrations/Dockerfile
+          push: true
+          tags: ${{ steps.meta-migration.outputs.tags }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: docker-compose.yml
+          sparse-checkout-cone-mode: false
+
+      - name: Copy docker-compose to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSHKEY }}
+          source: "docker-compose.yml"
+          target: /root
+
+      - name: Deploy to Selectel
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSHKEY }}
+          envs: GITHUB_SHA,GRPC_PORT,PG_HOST,PG_PORT,PG_USER,PG_PWD,PG_DBNAME,REGISTRY
+          script: |
+            export TAG_NAME=$(echo $GITHUB_SHA | head -c7)
+            docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} $REGISTRY
+            docker compose up --remove-orphans -d
