@@ -110,6 +110,6 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           envs: GITHUB_SHA,GRPC_PORT,PG_HOST,PG_PORT,PG_USER,PG_PWD,PG_DBNAME,REGISTRY
           script: |
-            TAG_NAME=$(echo $GITHUB_SHA | head -c7)
+            export TAG_NAME=$(echo $GITHUB_SHA | head -c7)
             docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} $REGISTRY
             docker compose up --remove-orphans -d
