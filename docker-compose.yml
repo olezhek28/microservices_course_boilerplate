@@ -35,7 +35,9 @@ services:
 
   auth-service:
     depends_on:
-      - pg
+      pg:
+      migrator:
+        condition: service_completed_successfully
     image: "ghcr.io/neracastle/auth-service:sha-${TAG_NAME}"
     build:
       context: .
