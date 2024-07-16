@@ -17,7 +17,7 @@ services:
     container_name: auth-migrator
     depends_on:
       - pg
-    image: "ghcr.io/neracastle/auth-migrator:sha-${TAG_NAME}"
+    image: "ghcr.io/neracastle/auth-migrations:sha-${TAG_NAME}"
     build:
       context: .
       dockerfile: migrations/Dockerfile
