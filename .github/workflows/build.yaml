@@ -5,6 +5,7 @@ on:
     branches-ignore: [ main ]
 
 env:
+  REGISTRY: ghcr.io/neracastle
   GRPC_PORT: 50503
   PG_HOST: pg
   PG_PORT: 5432
