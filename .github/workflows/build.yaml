@@ -89,6 +89,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          sparse-checkout: docker-compose.yml
+          sparse-checkout-cone-mode: false
 
       - name: Copy docker-compose to server
         uses: appleboy/scp-action@v0.1.7
@@ -105,7 +108,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSHKEY }}
-          envs: GITHUB_SHA,GRPC_PORT,PG_HOST,PG_PORT,PG_USER,PG_PWD,PG_DBNAME
+          envs: GITHUB_SHA,GRPC_PORT,PG_HOST,PG_PORT,PG_USER,PG_PWD,PG_DBNAME,REGISTRY
           script: |
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
             docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} $REGISTRY
