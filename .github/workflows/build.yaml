@@ -6,6 +6,8 @@ on:
 
 env:
   REGISTRY: ghcr.io/neracastle
+  IMAGE_NAME: auth-service
+  IMAGE_MIGRATION_NAME: auth-migrations
   GRPC_PORT: 50503
   PG_HOST: pg
   PG_PORT: 5432
