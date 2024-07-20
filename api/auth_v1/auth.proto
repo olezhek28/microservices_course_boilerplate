@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package auth_v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "github.com/BelyaevEI/microservices_client/pkg/auth_v1;auth_v1";
+
+service AuthV1 {
+    rpc Create(CreateRequest) returns (CreateResponse);
+    rpc Get(GetRequest) returns (GetResponse);
+    rpc Update(UpdateRequest) returns (google.protobuf.Empty);
+    rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+  }
+
+  message CreateRequest {
+    UserInfo info = 1;
+    string password = 2;
+    string password_confirm = 3;
+  }
+
+  message UserInfo {
+    string name = 1;
+    string email = 2;
+    Role role = 3;
+  }
+
+enum Role {
+    UNKNOWN = 0;
+    USER = 1;
+    ADMIN = 2;
+  }
+    
+  message User {
+    int64 id = 1;
+    UserInfo info = 2;
+    google.protobuf.Timestamp created_at = 3;
+    google.protobuf.Timestamp updated_at = 4;
+  }
+  
+  message CreateResponse {
+    int64 id = 1;
+  }
+
+  message GetRequest {
+    int64 id = 1;
+  }
+  
+  message GetResponse {
+    User user = 1;
+  }
+
+  message UpdateRequest {
+    int64 id = 1;
+    UpdateUserInfo info = 2;
+  }
+
+  message UpdateUserInfo {
+    google.protobuf.StringValue name = 1;
+    google.protobuf.StringValue email = 2;
+    Role role = 3;
+  }
+        
+  message DeleteRequest {
+    int64 id = 1;
+  }
+  
