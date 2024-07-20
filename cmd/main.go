@@ -32,7 +32,7 @@ func main() {
 
 	r, err := c.Get(ctx, &desc.GetRequest{Id: noteID})
 	if err != nil {
-		log.Fatalf("failed to get note by id: %v", err)
+		log.Fatalf("Failed to get note by id: %v", err)
 	}
 
 	log.Printf(color.RedString("Note info:\n"), color.GreenString("%+v", r.GetUser()))
