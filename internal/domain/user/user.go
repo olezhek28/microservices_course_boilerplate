@@ -5,110 +5,58 @@ import (
 	"time"
 )
 
-var _ User = (*user)(nil)
-
-// User агрегат доменного слоя, представляет пользователя и его бизнес-логику
-type User interface {
-	GetID() int64
-	GetName() string
-	GetEmail() string
-	GetPassword() string
-	IsAdmin() bool
-	ChangeName(newName string)
-	ChangeEmail(newEmail string) error
-	ChangePassword(newPassword string) error
-	SetIsAdmin()
-	SetIsUser()
+type User struct {
+	Id       int64
+	Name     string
+	Email    string
+	Password string
+	IsAdmin  bool
+	RegDate  time.Time
 }
 
-type user struct {
-	id        int64
-	name      string
-	email     string
-	password  string
-	isAdmin   bool
-	createdAt time.Time
-}
-
-func (u *user) GetID() int64 {
-	return u.id
-}
-
-func (u *user) GetName() string {
-	return u.name
-}
-
-func (u *user) GetEmail() string {
-	return u.email
-}
-
-func (u *user) GetPassword() string {
-	return u.password
-}
-
-func (u *user) GetCreatedAt() time.Time {
-	return u.createdAt
-}
-
-func (u *user) IsAdmin() bool {
-	return u.isAdmin
-}
-
-func (u *user) ChangeName(name string) {
-	u.name = name
-}
-
-func (u *user) ChangeEmail(email string) error {
+func (u *User) ChangeEmail(email string) error {
 	if email == "" {
 		return errors.New("email не может быть пустым")
 	}
 
-	u.email = email
+	u.Email = email
 	return nil
 }
 
-func (u *user) ChangePassword(password string) error {
+func (u *User) ChangePassword(password string) error {
 	if password == "" {
 		return errors.New("пароль не может быть пустым")
 	}
 
-	u.password = password
+	u.Password = password
 	return nil
 }
 
-func (u *user) SetIsAdmin() {
-	u.isAdmin = true
-}
-
-func (u *user) SetIsUser() {
-	u.isAdmin = false
-}
-
 // NewUser создает нового пользователя
-func NewUser(name string, password string, email string) (User, error) {
+func NewUser(email string, password string, name string) (*User, error) {
 	if email == "" {
-		return &user{}, errors.New("email не может быть пустым")
+		return &User{}, errors.New("email не может быть пустым")
 	}
 
 	if password == "" {
-		return &user{}, errors.New("пароль не может быть пустым")
+		return &User{}, errors.New("пароль не может быть пустым")
 	}
 
-	return &user{
-		name:      name,
-		password:  password,
-		email:     email,
-		createdAt: time.Now(),
+	return &User{
+		Name:     name,
+		Password: password,
+		Email:    email,
+		RegDate:  time.Now(),
 	}, nil
 }
 
 // NewAdmin Создает нового пользователя с ролью Admin
-func NewAdmin(name string, password string, email string) (User, error) {
-	usr, err := NewUser(name, password, email)
+func NewAdmin(email string, password string, name string) (*User, error) {
+	usr, err := NewUser(email, password, name)
 	if err != nil {
 		return usr, err
 	}
 
-	usr.SetIsAdmin()
+	usr.IsAdmin = true
 	return usr, nil
 }
