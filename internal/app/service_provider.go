@@ -54,14 +54,6 @@ func (sp *serviceProvider) DbClient(ctx context.Context) db.Client {
 	return sp.dbc
 }
 
-func (sp *serviceProvider) TxManager(ctx context.Context) db.TxManager {
-	if sp.txm == nil {
-		sp.txm = pg.NewTransactionManager(sp.DbClient(ctx).DB())
-	}
-
-	return sp.txm
-}
-
 func (sp *serviceProvider) UsersRepository(ctx context.Context) user.Repository {
 	if sp.usersRepo == nil {
 		sp.usersRepo = uRepo.New(sp.DbClient(ctx))
@@ -83,7 +75,7 @@ func (sp *serviceProvider) UsersService(ctx context.Context) *usecases.Service {
 		sp.usecaseService = usecases.NewService(
 			sp.UsersRepository(ctx),
 			sp.ActionsRepository(ctx),
-			sp.TxManager(ctx))
+			sp.DbClient(ctx).DB())
 	}
 
 	return sp.usecaseService

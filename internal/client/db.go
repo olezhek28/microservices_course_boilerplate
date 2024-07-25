@@ -48,6 +48,7 @@ type Pinger interface {
 type DB interface {
 	QueryExecer
 	Transactor
+	TxManager
 	Pinger
 	Close()
 }

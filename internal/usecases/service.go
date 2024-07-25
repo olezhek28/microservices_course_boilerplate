@@ -9,13 +9,13 @@ import (
 type Service struct {
 	urepo user.Repository
 	arepo action.Repository
-	tx    db.TxManager
+	db    db.DB
 }
 
-func NewService(urepo user.Repository, arepo action.Repository, tx db.TxManager) *Service {
+func NewService(urepo user.Repository, arepo action.Repository, db db.DB) *Service {
 	return &Service{
 		urepo: urepo,
 		arepo: arepo,
-		tx:    tx,
+		db:    db,
 	}
 }

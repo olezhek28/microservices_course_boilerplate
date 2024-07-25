@@ -36,7 +36,7 @@ func (s *Service) Update(ctx context.Context, user def.UpdateDTO) error {
 		return err
 	}
 
-	err = s.tx.ReadCommitted(ctx, func(ctx context.Context) error {
+	err = s.db.ReadCommitted(ctx, func(ctx context.Context) error {
 		err = s.urepo.Update(ctx, dbUser)
 		if err != nil {
 			return err
