@@ -8,7 +8,7 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-const localConfigPath = "./local.yaml"
+const localConfigPath = "./.env"
 
 // Config Конфиги grpc сервера, бд и прочего. Можно задавать через env, можно в yml конфиге
 type Config struct {

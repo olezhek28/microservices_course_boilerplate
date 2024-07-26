@@ -1,9 +1,9 @@
 package grpc_server
 
 import (
-	"github.com/jackc/pgx/v5"
 	"golang.org/x/exp/slog"
 
+	"github.com/neracastle/auth/internal/usecases"
 	userdesc "github.com/neracastle/auth/pkg/user_v1"
 )
 
@@ -11,13 +11,9 @@ import (
 type Server struct {
 	userdesc.UnimplementedUserV1Server
 	logger *slog.Logger
-	pgcon  *pgx.Conn
+	srv    *usecases.Service
 }
 
-func (s *Server) GetLogger() *slog.Logger {
-	return s.logger
-}
-
-func NewServer(logger *slog.Logger, conn *pgx.Conn) *Server {
-	return &Server{logger: logger, pgcon: conn}
+func NewServer(logger *slog.Logger, srv *usecases.Service) *Server {
+	return &Server{logger: logger, srv: srv}
 }
