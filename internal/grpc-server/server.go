@@ -11,9 +11,10 @@ import (
 type Server struct {
 	userdesc.UnimplementedUserV1Server
 	logger *slog.Logger
-	srv    *usecases.Service
+	srv    usecases.UserService
 }
 
-func NewServer(logger *slog.Logger, srv *usecases.Service) *Server {
+// NewServer новый экземпляр grpc сервера
+func NewServer(logger *slog.Logger, srv usecases.UserService) *Server {
 	return &Server{logger: logger, srv: srv}
 }

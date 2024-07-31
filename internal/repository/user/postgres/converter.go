@@ -5,9 +5,10 @@ import (
 	pg_repo "github.com/neracastle/auth/internal/repository/user/postgres/model"
 )
 
+// FromDomainToRepo преобразует доменную сущность в дто хранилища
 func FromDomainToRepo(user *domain.User) pg_repo.UserDTO {
 	dto := pg_repo.UserDTO{
-		Id:       user.Id,
+		ID:       user.ID,
 		Email:    user.Email,
 		Password: user.Password,
 		IsAdmin:  0,
@@ -24,9 +25,10 @@ func FromDomainToRepo(user *domain.User) pg_repo.UserDTO {
 	return dto
 }
 
+// FromRepoToDomain преобразует дто хранилища в доменную сущность
 func FromRepoToDomain(dto pg_repo.UserDTO) *domain.User {
 	return &domain.User{
-		Id:       dto.Id,
+		ID:       dto.ID,
 		Email:    dto.Email,
 		Password: dto.Password,
 		Name:     dto.Name.String,

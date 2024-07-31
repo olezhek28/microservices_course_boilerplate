@@ -2,8 +2,9 @@ package models
 
 import "time"
 
+// UserDTO модель данных пользователя на сервисном слое
 type UserDTO struct {
-	Id        int64
+	ID        int64
 	Email     string
 	Password  string
 	Name      string

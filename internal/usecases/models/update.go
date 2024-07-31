@@ -1,7 +1,8 @@
 package models
 
+// UpdateDTO входные данные для запроса обновления юзера
 type UpdateDTO struct {
-	Id       int64
+	ID       int64
 	Email    string
 	Password string
 	Name     string

@@ -3,14 +3,14 @@ package usecases
 import (
 	"context"
 
+	"github.com/neracastle/go-libs/pkg/sys/logger"
 	"golang.org/x/exp/slog"
-
-	"github.com/neracastle/auth/internal/app/logger"
 )
 
-func (s *Service) Delete(ctx context.Context, userId int64) error {
+// Delete удаляет пользователя
+func (s *Service) Delete(ctx context.Context, userID int64) error {
 	log := logger.GetLogger(ctx)
-	log.Debug("called", slog.String("method", "usecases.Delete"), slog.Int64("user_id", userId))
+	log.Debug("called", slog.String("method", "usecases.Delete"), slog.Int64("user_id", userID))
 
-	return s.urepo.Delete(ctx, userId)
+	return s.usersRepo.Delete(ctx, userID)
 }

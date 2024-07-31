@@ -8,12 +8,13 @@ install-lint:
 	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53.3
 
 lint:
-	GOBIN=$(LOCAL_BIN) golangci-lint run ./... --config .golangci.pipeline.yaml
+	GOBIN=$(LOCAL_BIN) bin/golangci-lint run ./... --config .golangci.pipeline.yaml
 
 install-deps:
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.34.2
 	GOBIN=$(LOCAL_BIN) go install -mod=mod google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.4
 	GOBIN=$(LOCAL_BIN) go install -mod=mod github.com/pressly/goose/v3/cmd/goose@v3.21.1
+	GOBIN=$(LOCAL_BIN) go install github.com/gojuno/minimock/v3/cmd/minimock@v3.3.6
 
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
@@ -38,3 +39,16 @@ local-down:
 
 run:
 	docker compose up -d
+
+test-cover:
+	go clean -testcache
+	go test ./... -coverprofile=coverage.tmp.out -covermode count -coverpkg=\
+github.com/neracastle/auth/internal/grpc-server/...,\
+github.com/neracastle/auth/internal/usecases/...,\
+github.com/neracastle/auth/internal/domain/...
+	grep -v 'mocks\|config' coverage.tmp.out > coverage.out
+	rm coverage.tmp.out
+	go tool cover -html=coverage.out
+
+test-cover-total:
+	go tool cover -func=./coverage.out | grep "total" | awk '{print $$3}'

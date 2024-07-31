@@ -5,8 +5,9 @@ import (
 	"time"
 )
 
+// UserDTO модель для представления в pg
 type UserDTO struct {
-	Id        int64          `db:"id"`
+	ID        int64          `db:"id"`
 	Email     string         `db:"email"`
 	Password  string         `db:"password"`
 	Name      sql.NullString `db:"name"`

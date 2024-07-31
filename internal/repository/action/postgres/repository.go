@@ -3,10 +3,10 @@ package postgres
 import (
 	"context"
 
+	"github.com/neracastle/go-libs/pkg/db"
+	"github.com/neracastle/go-libs/pkg/sys/logger"
 	"golang.org/x/exp/slog"
 
-	"github.com/neracastle/auth/internal/app/logger"
-	db "github.com/neracastle/auth/internal/client"
 	"github.com/neracastle/auth/internal/repository/action"
 	"github.com/neracastle/auth/internal/repository/action/postgres/model"
 )
@@ -17,6 +17,7 @@ type repo struct {
 	conn db.Client
 }
 
+// New новый экземпляр репозитария
 func New(conn db.Client) action.Repository {
 	instance := &repo{conn: conn}
 
@@ -30,7 +31,7 @@ func (r *repo) Save(ctx context.Context, dto model.ActionDTO) error {
 	q := db.Query{Name: "Save", QueryRaw: "INSERT INTO auth.user_actions(user_id, name, old_value, new_value) VALUES ($1, $2, $3, $4)"}
 
 	_, err := r.conn.DB().Exec(ctx, q,
-		dto.UserId,
+		dto.UserID,
 		dto.Name,
 		dto.OldValue,
 		dto.NewValue)

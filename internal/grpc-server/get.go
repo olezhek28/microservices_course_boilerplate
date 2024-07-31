@@ -3,9 +3,9 @@ package grpc_server
 import (
 	"context"
 
+	"github.com/neracastle/go-libs/pkg/sys/logger"
 	"golang.org/x/exp/slog"
 
-	"github.com/neracastle/auth/internal/app/logger"
 	userdesc "github.com/neracastle/auth/pkg/user_v1"
 )
 

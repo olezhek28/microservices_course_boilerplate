@@ -3,14 +3,20 @@ package app
 import (
 	"context"
 	"log"
+	"time"
 
-	db "github.com/neracastle/auth/internal/client"
-	"github.com/neracastle/auth/internal/client/pg"
+	redigo "github.com/gomodule/redigo/redis"
+	"github.com/neracastle/go-libs/pkg/db"
+	"github.com/neracastle/go-libs/pkg/db/pg"
+	"github.com/neracastle/go-libs/pkg/redis"
+	redislib "github.com/neracastle/go-libs/pkg/redis/redis"
+
 	"github.com/neracastle/auth/internal/config"
 	"github.com/neracastle/auth/internal/repository/action"
-	acRepo "github.com/neracastle/auth/internal/repository/action/postgres"
+	actionsPg "github.com/neracastle/auth/internal/repository/action/postgres"
 	"github.com/neracastle/auth/internal/repository/user"
-	uRepo "github.com/neracastle/auth/internal/repository/user/postgres"
+	usersPg "github.com/neracastle/auth/internal/repository/user/postgres"
+	usersRedis "github.com/neracastle/auth/internal/repository/user/redis"
 	"github.com/neracastle/auth/internal/usecases"
 )
 
@@ -18,9 +24,10 @@ type serviceProvider struct {
 	conf           *config.Config
 	usecaseService *usecases.Service
 	usersRepo      user.Repository
+	usersCache     user.Cache
 	actionsRepo    action.Repository
 	dbc            db.Client
-	txm            db.TxManager
+	redis          redis.Client
 }
 
 func newServiceProvider() *serviceProvider {
@@ -54,17 +61,41 @@ func (sp *serviceProvider) DbClient(ctx context.Context) db.Client {
 	return sp.dbc
 }
 
+func (sp *serviceProvider) RedisClient() redis.Client {
+	if sp.redis == nil {
+		pool := &redigo.Pool{
+			MaxIdle:     sp.Config().Redis.MaxIdle,
+			IdleTimeout: time.Duration(sp.Config().Redis.IdleTimeout),
+			DialContext: func(ctx context.Context) (redigo.Conn, error) {
+				return redigo.DialContext(ctx, "tcp", sp.Config().Redis.Address())
+			},
+		}
+
+		sp.redis = redislib.NewClient(pool)
+	}
+
+	return sp.redis
+}
+
 func (sp *serviceProvider) UsersRepository(ctx context.Context) user.Repository {
 	if sp.usersRepo == nil {
-		sp.usersRepo = uRepo.New(sp.DbClient(ctx))
+		sp.usersRepo = usersPg.New(sp.DbClient(ctx))
 	}
 
 	return sp.usersRepo
 }
 
+func (sp *serviceProvider) UsersCache() user.Cache {
+	if sp.usersCache == nil {
+		sp.usersCache = usersRedis.New(sp.RedisClient())
+	}
+
+	return sp.usersCache
+}
+
 func (sp *serviceProvider) ActionsRepository(ctx context.Context) action.Repository {
 	if sp.actionsRepo == nil {
-		sp.actionsRepo = acRepo.New(sp.DbClient(ctx))
+		sp.actionsRepo = actionsPg.New(sp.DbClient(ctx))
 	}
 
 	return sp.actionsRepo
@@ -74,6 +105,7 @@ func (sp *serviceProvider) UsersService(ctx context.Context) *usecases.Service {
 	if sp.usecaseService == nil {
 		sp.usecaseService = usecases.NewService(
 			sp.UsersRepository(ctx),
+			sp.UsersCache(),
 			sp.ActionsRepository(ctx),
 			sp.DbClient(ctx).DB())
 	}

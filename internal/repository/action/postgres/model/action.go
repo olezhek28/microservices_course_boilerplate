@@ -4,8 +4,9 @@ import (
 	"time"
 )
 
+// ActionDTO модель события действий пользователя
 type ActionDTO struct {
-	UserId    int64     `db:"user_id"`
+	UserID    int64     `db:"user_id"`
 	Name      string    `db:"name"`
 	OldValue  string    `db:"old_value"`
 	NewValue  string    `db:"new_value"`

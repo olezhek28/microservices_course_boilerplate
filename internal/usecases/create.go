@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 
+	"github.com/neracastle/go-libs/pkg/sys/logger"
 	"golang.org/x/exp/slog"
 
-	"github.com/neracastle/auth/internal/app/logger"
 	domain "github.com/neracastle/auth/internal/domain/user"
 	def "github.com/neracastle/auth/internal/usecases/models"
 )
 
+// Create создает нового пользователя
 func (s *Service) Create(ctx context.Context, req def.CreateDTO) (int64, error) {
 	log := logger.GetLogger(ctx)
 	log.Debug("called", slog.String("method", "usecases.Create"))
@@ -32,11 +33,11 @@ func (s *Service) Create(ctx context.Context, req def.CreateDTO) (int64, error) 
 		return 0, err
 	}
 
-	err = s.urepo.Save(ctx, newUser)
+	err = s.usersRepo.Save(ctx, newUser)
 	if err != nil {
 		log.Error("failed to create user", slog.String("error", err.Error()), slog.String("method", "usecases.Create"))
 		return 0, err
 	}
 
-	return newUser.Id, nil
+	return newUser.ID, nil
 }

@@ -15,6 +15,7 @@ type Config struct {
 	Env string `yaml:"env" env:"ENV" env-required:"true"`
 	GRPC
 	Postgres
+	Redis
 }
 
 // GRPC настройки grpc сервера
@@ -30,6 +31,20 @@ type Postgres struct {
 	User     string `yaml:"user" env:"PG_USER" env-required:"true"`
 	Password string `yaml:"password" env:"PG_PWD" env-required:"true"`
 	Dbname   string `yaml:"dbname" env:"PG_DBNAME" env-default:"users"`
+}
+
+// Redis настройки подключения в бд
+type Redis struct {
+	Host              string `yaml:"host" env:"REDIS_HOST" env-default:"0.0.0.0"`
+	Port              int    `yaml:"port" env:"REDIS_PORT" env-default:"6379"`
+	ConnectionTimeout int    `yaml:"connection_timeout" env:"REDIS_CONTIME" env-default:"5"`
+	IdleTimeout       int    `yaml:"idle_timeout" env:"REDIS_IDLETIME" env-default:"300"`
+	MaxIdle           int    `yaml:"max_idle" env:"REDIS_MAXIDLE" env-default:"10"`
+}
+
+// Address адрес подключения
+func (r Redis) Address() string {
+	return fmt.Sprintf("%s:%d", r.Host, r.Port)
 }
 
 // DSN генерирует строку подключения

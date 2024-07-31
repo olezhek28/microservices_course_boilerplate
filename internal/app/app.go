@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
 
-	"golang.org/x/exp/slog"
+	"github.com/neracastle/go-libs/pkg/sys/logger"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
@@ -15,17 +14,13 @@ import (
 	"github.com/neracastle/auth/pkg/user_v1"
 )
 
-const (
-	envLocal = "local"
-	envDev   = "dev"
-	envProd  = "prod"
-)
-
+// App приложение
 type App struct {
 	grpc        *grpc.Server
 	srvProvider *serviceProvider
 }
 
+// NewApp новый экземпляр приложения
 func NewApp(ctx context.Context) *App {
 	app := &App{srvProvider: newServiceProvider()}
 	app.init(ctx)
@@ -33,13 +28,14 @@ func NewApp(ctx context.Context) *App {
 }
 
 func (a *App) init(ctx context.Context) {
-	lg := setupLogger(a.srvProvider.Config().Env)
+	lg := logger.SetupLogger(a.srvProvider.Config().Env)
 	a.grpc = grpc.NewServer()
 
 	reflection.Register(a.grpc)
 	user_v1.RegisterUserV1Server(a.grpc, grpc_server.NewServer(lg, a.srvProvider.UsersService(ctx)))
 }
 
+// Start запускает сервис на прием запросов
 func (a *App) Start() error {
 
 	conn, err := net.Listen("tcp", fmt.Sprintf("%s:%d", a.srvProvider.Config().GRPC.Host, a.srvProvider.Config().GRPC.Port))
@@ -49,13 +45,12 @@ func (a *App) Start() error {
 
 	log.Printf("UserAPI service started on %s:%d\n", a.srvProvider.Config().GRPC.Host, a.srvProvider.Config().GRPC.Port)
 
-	if err = a.grpc.Serve(conn); err != nil {
-		return err
-	}
+	err = a.grpc.Serve(conn)
 
-	return nil
+	return err
 }
 
+// Shutdown мягко закрывает все соединения и службы
 func (a *App) Shutdown(ctx context.Context) {
 
 	allClosed := make(chan struct{})
@@ -73,19 +68,4 @@ func (a *App) Shutdown(ctx context.Context) {
 			return
 		}
 	}
-}
-
-func setupLogger(env string) *slog.Logger {
-	var lg *slog.Logger
-
-	switch env {
-	case envLocal:
-		lg = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case envDev:
-		lg = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	case envProd:
-		lg = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-	}
-
-	return lg
 }

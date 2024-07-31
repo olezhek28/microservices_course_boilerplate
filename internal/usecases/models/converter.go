@@ -4,9 +4,10 @@ import (
 	"github.com/neracastle/auth/internal/domain/user"
 )
 
+// FromDomainToUsecase преобразует доменную сущность в дто из сервисного слоя
 func FromDomainToUsecase(dbUser *user.User) UserDTO {
 	return UserDTO{
-		Id:        dbUser.Id,
+		ID:        dbUser.ID,
 		Email:     dbUser.Email,
 		Password:  dbUser.Password,
 		Name:      dbUser.Name,

@@ -5,10 +5,10 @@ import (
 	"errors"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/neracastle/go-libs/pkg/db"
+	"github.com/neracastle/go-libs/pkg/sys/logger"
 	"golang.org/x/exp/slog"
 
-	"github.com/neracastle/auth/internal/app/logger"
-	db "github.com/neracastle/auth/internal/client"
 	domain "github.com/neracastle/auth/internal/domain/user"
 	"github.com/neracastle/auth/internal/repository/user"
 	pgmodel "github.com/neracastle/auth/internal/repository/user/postgres/model"
@@ -20,6 +20,7 @@ type repo struct {
 	conn db.Client
 }
 
+// New новый экземпляр репозитория pg
 func New(conn db.Client) user.Repository {
 	instance := &repo{conn: conn}
 
@@ -37,13 +38,13 @@ func (r *repo) Save(ctx context.Context, user *domain.User) error {
 		dto.Email,
 		dto.Password,
 		dto.Name,
-		dto.IsAdmin).Scan(&user.Id)
+		dto.IsAdmin).Scan(&user.ID)
 	if err != nil {
 		log.Error("failed to save user in db", slog.String("error", err.Error()))
 		return err
 	}
 
-	log.Debug("saved user in db", slog.Int64("id", user.Id))
+	log.Debug("saved user in db", slog.Int64("id", user.ID))
 
 	return nil
 }
@@ -58,7 +59,7 @@ func (r *repo) Update(ctx context.Context, user *domain.User) error {
 		dto.Email,
 		dto.Password,
 		dto.IsAdmin,
-		dto.Id)
+		dto.ID)
 	if err != nil {
 		log.Error("failed to update user in db", slog.String("error", err.Error()), slog.String("method", "repository.user.postgres.Update"))
 		return err
@@ -79,7 +80,7 @@ func (r *repo) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (r *repo) GetById(ctx context.Context, id int64) (*domain.User, error) {
+func (r *repo) GetByID(ctx context.Context, id int64) (*domain.User, error) {
 	log := logger.GetLogger(ctx)
 	log = log.With(slog.String("method", "repository.user.postgres.GetById"), slog.Int64("user_id", id))
 
@@ -103,9 +104,9 @@ func (r *repo) GetById(ctx context.Context, id int64) (*domain.User, error) {
 		return nil, err
 	}
 
-	user := FromRepoToDomain(dto)
+	userAggr := FromRepoToDomain(dto)
 
-	return user, nil
+	return userAggr, nil
 }
 
 func (r *repo) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
@@ -132,7 +133,7 @@ func (r *repo) GetByEmail(ctx context.Context, email string) (*domain.User, erro
 		return nil, err
 	}
 
-	user := FromRepoToDomain(dto)
+	userAggr := FromRepoToDomain(dto)
 
-	return user, nil
+	return userAggr, nil
 }

@@ -5,8 +5,9 @@ import (
 	"time"
 )
 
+// User доменный агрегат пользователя в системе
 type User struct {
-	Id       int64
+	ID       int64
 	Name     string
 	Email    string
 	Password string
@@ -14,6 +15,7 @@ type User struct {
 	RegDate  time.Time
 }
 
+// ChangeEmail меняет почту юзера
 func (u *User) ChangeEmail(email string) error {
 	if email == "" {
 		return errors.New("email не может быть пустым")
@@ -23,6 +25,7 @@ func (u *User) ChangeEmail(email string) error {
 	return nil
 }
 
+// ChangePassword меняет пароль
 func (u *User) ChangePassword(password string) error {
 	if password == "" {
 		return errors.New("пароль не может быть пустым")
@@ -35,11 +38,11 @@ func (u *User) ChangePassword(password string) error {
 // NewUser создает нового пользователя
 func NewUser(email string, password string, name string) (*User, error) {
 	if email == "" {
-		return &User{}, errors.New("email не может быть пустым")
+		return nil, errors.New("email не может быть пустым")
 	}
 
 	if password == "" {
-		return &User{}, errors.New("пароль не может быть пустым")
+		return nil, errors.New("пароль не может быть пустым")
 	}
 
 	return &User{

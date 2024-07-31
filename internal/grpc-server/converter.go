@@ -7,6 +7,7 @@ import (
 	"github.com/neracastle/auth/pkg/user_v1"
 )
 
+// FromGrpcToCreateUsecase преобразует grpc-запрос в дто сервисного слоя
 func FromGrpcToCreateUsecase(req *user_v1.CreateRequest) usecases.CreateDTO {
 	dto := usecases.CreateDTO{
 		Email:           req.Email,
@@ -23,9 +24,10 @@ func FromGrpcToCreateUsecase(req *user_v1.CreateRequest) usecases.CreateDTO {
 	return dto
 }
 
+// FromGrpcToUpdateUsecase преобразует grpc-запрос в дто сервисного слоя
 func FromGrpcToUpdateUsecase(req *user_v1.UpdateRequest) usecases.UpdateDTO {
 	dto := usecases.UpdateDTO{
-		Id:    req.Id,
+		ID:    req.Id,
 		Email: req.GetEmail(),
 		Name:  req.GetName(),
 		Role:  0,
@@ -41,9 +43,10 @@ func FromGrpcToUpdateUsecase(req *user_v1.UpdateRequest) usecases.UpdateDTO {
 	return dto
 }
 
+// FromUsecaseToGetResponse преобразует дто сервисного слоя в grpc-ответ
 func FromUsecaseToGetResponse(dto usecases.UserDTO) *user_v1.GetResponse {
 	rsp := &user_v1.GetResponse{
-		Id:        dto.Id,
+		Id:        dto.ID,
 		Name:      dto.Name,
 		Email:     dto.Email,
 		Role:      user_v1.Role_USER,
