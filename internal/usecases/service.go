@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"time"
 
 	"github.com/neracastle/go-libs/pkg/db"
 
@@ -24,14 +25,20 @@ type Service struct {
 	usersCache  user.Cache
 	actionsRepo action.Repository
 	db          db.DB
+	cacheTTL    time.Duration
 }
 
 // NewService новый экзмепляр usecase-сервиса
-func NewService(usersRepo user.Repository, usersCache user.Cache, actionsRepo action.Repository, db db.DB) *Service {
+func NewService(usersRepo user.Repository,
+	usersCache user.Cache,
+	actionsRepo action.Repository,
+	db db.DB,
+	cacheTTL time.Duration) *Service {
 	return &Service{
 		usersRepo:   usersRepo,
 		usersCache:  usersCache,
 		actionsRepo: actionsRepo,
 		db:          db,
+		cacheTTL:    cacheTTL,
 	}
 }

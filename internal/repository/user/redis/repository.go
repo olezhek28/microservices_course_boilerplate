@@ -25,14 +25,14 @@ func New(client redis.Client) user.Cache {
 	}
 }
 
-func (r *repo) Save(ctx context.Context, d *domain.User) error {
+func (r *repo) Save(ctx context.Context, d *domain.User, ttl time.Duration) error {
 	dto := FromDomainToRepo(d)
 	err := r.client.HSetMap(ctx, r.getKey(dto.ID), dto)
 	if err != nil {
 		return err
 	}
 
-	err = r.client.Expire(ctx, r.getKey(dto.ID), time.Minute)
+	err = r.client.Expire(ctx, r.getKey(dto.ID), ttl)
 	if err != nil {
 		_ = r.client.Del(ctx, r.getKey(dto.ID))
 		return err
@@ -41,7 +41,7 @@ func (r *repo) Save(ctx context.Context, d *domain.User) error {
 	return nil
 }
 
-// GetById возвращает пользователя по ID. Если не найден, вернется user.ErrUserNotCached
+// GetByID возвращает пользователя по ID. Если не найден, вернется user.ErrUserNotCached
 func (r *repo) GetByID(ctx context.Context, id int64) (*domain.User, error) {
 	exist, err := r.client.Exist(ctx, r.getKey(id))
 	if err != nil {

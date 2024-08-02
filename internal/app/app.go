@@ -45,9 +45,11 @@ func (a *App) Start() error {
 
 	log.Printf("UserAPI service started on %s:%d\n", a.srvProvider.Config().GRPC.Host, a.srvProvider.Config().GRPC.Port)
 
-	err = a.grpc.Serve(conn)
+	if err = a.grpc.Serve(conn); err != nil {
+		return err
+	}
 
-	return err
+	return nil
 }
 
 // Shutdown мягко закрывает все соединения и службы

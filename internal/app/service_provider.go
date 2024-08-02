@@ -107,7 +107,8 @@ func (sp *serviceProvider) UsersService(ctx context.Context) *usecases.Service {
 			sp.UsersRepository(ctx),
 			sp.UsersCache(),
 			sp.ActionsRepository(ctx),
-			sp.DbClient(ctx).DB())
+			sp.DbClient(ctx).DB(),
+			time.Second*time.Duration(sp.Config().UsersCacheTTL))
 	}
 
 	return sp.usecaseService

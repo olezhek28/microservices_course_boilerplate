@@ -12,7 +12,6 @@ import (
 )
 
 func TestNewUser(t *testing.T) {
-	//Привет, если еще не нашел напарника, предлагаю себя, backend 10 лет (9 php, 1 go)
 	type testData struct {
 		Name     string
 		Email    string

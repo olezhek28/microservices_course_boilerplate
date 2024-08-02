@@ -15,7 +15,8 @@ import (
 
 func main() {
 
-	ap := app.NewApp(context.Background())
+	ctx := context.Background()
+	ap := app.NewApp(ctx)
 
 	go func() {
 		err := ap.Start()
@@ -30,7 +31,8 @@ func main() {
 
 	sig := <-sigChan
 	log.Println("received signal, graceful shutdown", sig)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	var cancel context.CancelFunc
+	ctx, cancel = context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	ap.Shutdown(ctx)
 }

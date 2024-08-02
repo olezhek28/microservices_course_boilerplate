@@ -2,12 +2,13 @@
 
 package mocks
 
-//go:generate minimock -i github.com/neracastle/auth/internal/repository/user.Cache -o cache_mocks.go -n CacheMock -p mocks
+//go:generate minimock -i github.com/neracastle/auth/internal/repository/user.Cache -o cache_mock.go -n CacheMock -p mocks
 
 import (
 	"context"
 	"sync"
 	mm_atomic "sync/atomic"
+	"time"
 	mm_time "time"
 
 	"github.com/gojuno/minimock/v3"
@@ -25,8 +26,8 @@ type CacheMock struct {
 	beforeGetByIDCounter uint64
 	GetByIDMock          mCacheMockGetByID
 
-	funcSave          func(ctx context.Context, up1 *domain.User) (err error)
-	inspectFuncSave   func(ctx context.Context, up1 *domain.User)
+	funcSave          func(ctx context.Context, up1 *domain.User, d1 time.Duration) (err error)
+	inspectFuncSave   func(ctx context.Context, up1 *domain.User, d1 time.Duration)
 	afterSaveCounter  uint64
 	beforeSaveCounter uint64
 	SaveMock          mCacheMockSave
@@ -289,6 +290,7 @@ type CacheMockSaveExpectation struct {
 type CacheMockSaveParams struct {
 	ctx context.Context
 	up1 *domain.User
+	d1  time.Duration
 }
 
 // CacheMockSaveResults contains results of the Cache.Save
@@ -297,7 +299,7 @@ type CacheMockSaveResults struct {
 }
 
 // Expect sets up expected params for Cache.Save
-func (mmSave *mCacheMockSave) Expect(ctx context.Context, up1 *domain.User) *mCacheMockSave {
+func (mmSave *mCacheMockSave) Expect(ctx context.Context, up1 *domain.User, d1 time.Duration) *mCacheMockSave {
 	if mmSave.mock.funcSave != nil {
 		mmSave.mock.t.Fatalf("CacheMock.Save mock is already set by Set")
 	}
@@ -306,7 +308,7 @@ func (mmSave *mCacheMockSave) Expect(ctx context.Context, up1 *domain.User) *mCa
 		mmSave.defaultExpectation = &CacheMockSaveExpectation{}
 	}
 
-	mmSave.defaultExpectation.params = &CacheMockSaveParams{ctx, up1}
+	mmSave.defaultExpectation.params = &CacheMockSaveParams{ctx, up1, d1}
 	for _, e := range mmSave.expectations {
 		if minimock.Equal(e.params, mmSave.defaultExpectation.params) {
 			mmSave.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmSave.defaultExpectation.params)
@@ -317,7 +319,7 @@ func (mmSave *mCacheMockSave) Expect(ctx context.Context, up1 *domain.User) *mCa
 }
 
 // Inspect accepts an inspector function that has same arguments as the Cache.Save
-func (mmSave *mCacheMockSave) Inspect(f func(ctx context.Context, up1 *domain.User)) *mCacheMockSave {
+func (mmSave *mCacheMockSave) Inspect(f func(ctx context.Context, up1 *domain.User, d1 time.Duration)) *mCacheMockSave {
 	if mmSave.mock.inspectFuncSave != nil {
 		mmSave.mock.t.Fatalf("Inspect function is already set for CacheMock.Save")
 	}
@@ -341,7 +343,7 @@ func (mmSave *mCacheMockSave) Return(err error) *CacheMock {
 }
 
 // Set uses given function f to mock the Cache.Save method
-func (mmSave *mCacheMockSave) Set(f func(ctx context.Context, up1 *domain.User) (err error)) *CacheMock {
+func (mmSave *mCacheMockSave) Set(f func(ctx context.Context, up1 *domain.User, d1 time.Duration) (err error)) *CacheMock {
 	if mmSave.defaultExpectation != nil {
 		mmSave.mock.t.Fatalf("Default expectation is already set for the Cache.Save method")
 	}
@@ -356,14 +358,14 @@ func (mmSave *mCacheMockSave) Set(f func(ctx context.Context, up1 *domain.User) 
 
 // When sets expectation for the Cache.Save which will trigger the result defined by the following
 // Then helper
-func (mmSave *mCacheMockSave) When(ctx context.Context, up1 *domain.User) *CacheMockSaveExpectation {
+func (mmSave *mCacheMockSave) When(ctx context.Context, up1 *domain.User, d1 time.Duration) *CacheMockSaveExpectation {
 	if mmSave.mock.funcSave != nil {
 		mmSave.mock.t.Fatalf("CacheMock.Save mock is already set by Set")
 	}
 
 	expectation := &CacheMockSaveExpectation{
 		mock:   mmSave.mock,
-		params: &CacheMockSaveParams{ctx, up1},
+		params: &CacheMockSaveParams{ctx, up1, d1},
 	}
 	mmSave.expectations = append(mmSave.expectations, expectation)
 	return expectation
@@ -376,15 +378,15 @@ func (e *CacheMockSaveExpectation) Then(err error) *CacheMock {
 }
 
 // Save implements user.Cache
-func (mmSave *CacheMock) Save(ctx context.Context, up1 *domain.User) (err error) {
+func (mmSave *CacheMock) Save(ctx context.Context, up1 *domain.User, d1 time.Duration) (err error) {
 	mm_atomic.AddUint64(&mmSave.beforeSaveCounter, 1)
 	defer mm_atomic.AddUint64(&mmSave.afterSaveCounter, 1)
 
 	if mmSave.inspectFuncSave != nil {
-		mmSave.inspectFuncSave(ctx, up1)
+		mmSave.inspectFuncSave(ctx, up1, d1)
 	}
 
-	mm_params := CacheMockSaveParams{ctx, up1}
+	mm_params := CacheMockSaveParams{ctx, up1, d1}
 
 	// Record call args
 	mmSave.SaveMock.mutex.Lock()
@@ -401,7 +403,7 @@ func (mmSave *CacheMock) Save(ctx context.Context, up1 *domain.User) (err error)
 	if mmSave.SaveMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmSave.SaveMock.defaultExpectation.Counter, 1)
 		mm_want := mmSave.SaveMock.defaultExpectation.params
-		mm_got := CacheMockSaveParams{ctx, up1}
+		mm_got := CacheMockSaveParams{ctx, up1, d1}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmSave.t.Errorf("CacheMock.Save got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -413,9 +415,9 @@ func (mmSave *CacheMock) Save(ctx context.Context, up1 *domain.User) (err error)
 		return (*mm_results).err
 	}
 	if mmSave.funcSave != nil {
-		return mmSave.funcSave(ctx, up1)
+		return mmSave.funcSave(ctx, up1, d1)
 	}
-	mmSave.t.Fatalf("Unexpected call to CacheMock.Save. %v %v", ctx, up1)
+	mmSave.t.Fatalf("Unexpected call to CacheMock.Save. %v %v %v", ctx, up1, d1)
 	return
 }
 

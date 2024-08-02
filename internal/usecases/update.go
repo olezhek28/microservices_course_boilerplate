@@ -8,6 +8,7 @@ import (
 	"golang.org/x/exp/slog"
 
 	"github.com/neracastle/auth/internal/repository/action/postgres/model"
+	userRepo "github.com/neracastle/auth/internal/repository/user"
 	def "github.com/neracastle/auth/internal/usecases/models"
 )
 
@@ -16,7 +17,7 @@ func (s *Service) Update(ctx context.Context, user def.UpdateDTO) error {
 	log := logger.GetLogger(ctx)
 	log.Debug("called", slog.String("method", "usecases.Update"), slog.Int64("user_id", user.ID))
 
-	dbUser, err := s.usersRepo.GetByID(ctx, user.ID)
+	dbUser, err := s.usersRepo.Get(ctx, userRepo.SearchFilter{ID: user.ID})
 
 	if err != nil {
 		return err

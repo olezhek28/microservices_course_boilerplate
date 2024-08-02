@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"net"
 	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
@@ -12,7 +13,8 @@ const localConfigPath = "./.env"
 
 // Config Конфиги grpc сервера, бд и прочего. Можно задавать через env, можно в yml конфиге
 type Config struct {
-	Env string `yaml:"env" env:"ENV" env-required:"true"`
+	Env           string `yaml:"env" env:"ENV" env-required:"true"`
+	UsersCacheTTL int    `yaml:"users_cache_ttl" env:"USERS_CACHE_TTL" env-default:"60"`
 	GRPC
 	Postgres
 	Redis
@@ -36,7 +38,7 @@ type Postgres struct {
 // Redis настройки подключения в бд
 type Redis struct {
 	Host              string `yaml:"host" env:"REDIS_HOST" env-default:"0.0.0.0"`
-	Port              int    `yaml:"port" env:"REDIS_PORT" env-default:"6379"`
+	Port              string `yaml:"port" env:"REDIS_PORT" env-default:"6379"`
 	ConnectionTimeout int    `yaml:"connection_timeout" env:"REDIS_CONTIME" env-default:"5"`
 	IdleTimeout       int    `yaml:"idle_timeout" env:"REDIS_IDLETIME" env-default:"300"`
 	MaxIdle           int    `yaml:"max_idle" env:"REDIS_MAXIDLE" env-default:"10"`
@@ -44,7 +46,7 @@ type Redis struct {
 
 // Address адрес подключения
 func (r Redis) Address() string {
-	return fmt.Sprintf("%s:%d", r.Host, r.Port)
+	return net.JoinHostPort(r.Host, r.Port)
 }
 
 // DSN генерирует строку подключения

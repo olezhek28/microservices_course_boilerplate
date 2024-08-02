@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 
@@ -20,7 +21,7 @@ import (
 func TestCreate(t *testing.T) {
 	type caseArgs struct {
 		ctx context.Context
-		req int64
+		req user.SearchFilter
 	}
 
 	var (
@@ -37,6 +38,8 @@ func TestCreate(t *testing.T) {
 			RegDate:  time.Now(),
 		}
 		userDTO = usecases.FromDomainToUsecase(userAggr)
+
+		repoErr = errors.New("repo error")
 	)
 
 	tests := []struct {
@@ -51,20 +54,20 @@ func TestCreate(t *testing.T) {
 			name: "Success. Not cached",
 			args: caseArgs{
 				ctx: ctx,
-				req: userAggr.ID,
+				req: user.SearchFilter{ID: userAggr.ID},
 			},
 			want: userDTO,
 			err:  nil,
 			usersRepoMock: func(mc *minimock.Controller) user.Repository {
 				repoMock := mocks.NewRepositoryMock(mc)
-				repoMock.GetByIDMock.Expect(ctx, userAggr.ID).Return(userAggr, nil)
+				repoMock.GetMock.Expect(ctx, user.SearchFilter{ID: userAggr.ID}).Return(userAggr, nil)
 
 				return repoMock
 			},
 			usersCacheMock: func(mc *minimock.Controller) user.Cache {
 				cacheMock := mocks.NewCacheMock(mc)
 				cacheMock.GetByIDMock.Expect(ctx, userAggr.ID).Return(nil, user.ErrUserNotCached)
-				cacheMock.SaveMock.Expect(ctx, userAggr).Return(nil)
+				cacheMock.SaveMock.Expect(ctx, userAggr, time.Minute).Return(nil)
 
 				return cacheMock
 			},
@@ -73,7 +76,7 @@ func TestCreate(t *testing.T) {
 			name: "Success. Cached",
 			args: caseArgs{
 				ctx: ctx,
-				req: userAggr.ID,
+				req: user.SearchFilter{ID: userAggr.ID},
 			},
 			want: userDTO,
 			err:  nil,
@@ -89,6 +92,26 @@ func TestCreate(t *testing.T) {
 				return cacheMock
 			},
 		},
+		{
+			name: "Failed. Repository Error",
+			args: caseArgs{
+				ctx: ctx,
+				req: user.SearchFilter{ID: userAggr.ID},
+			},
+			want: usecases.UserDTO{},
+			err:  repoErr,
+			usersRepoMock: func(mc *minimock.Controller) user.Repository {
+				repoMock := mocks.NewRepositoryMock(mc)
+				repoMock.GetMock.Expect(ctx, user.SearchFilter{ID: userAggr.ID}).Return(nil, repoErr)
+				return repoMock
+			},
+			usersCacheMock: func(mc *minimock.Controller) user.Cache {
+				cacheMock := mocks.NewCacheMock(mc)
+				cacheMock.GetByIDMock.Expect(ctx, userAggr.ID).Return(nil, user.ErrUserNotCached)
+
+				return cacheMock
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -97,8 +120,8 @@ func TestCreate(t *testing.T) {
 			repo := tt.usersRepoMock(mc)
 			cache := tt.usersCacheMock(mc)
 
-			srv := usecases2.NewService(repo, cache, nil, nil)
-			res, err := srv.Get(tt.args.ctx, tt.args.req)
+			srv := usecases2.NewService(repo, cache, nil, nil, time.Minute)
+			res, err := srv.Get(tt.args.ctx, tt.args.req.ID)
 			require.Equal(t, tt.want, res)
 			require.Equal(t, tt.err, err)
 		})
