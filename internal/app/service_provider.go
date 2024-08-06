@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/IBM/sarama"
 	redigo "github.com/gomodule/redigo/redis"
 	"github.com/neracastle/go-libs/pkg/db"
 	"github.com/neracastle/go-libs/pkg/db/pg"
@@ -12,6 +13,7 @@ import (
 	redislib "github.com/neracastle/go-libs/pkg/redis/redis"
 
 	"github.com/neracastle/auth/internal/config"
+	"github.com/neracastle/auth/internal/kafka"
 	"github.com/neracastle/auth/internal/repository/action"
 	actionsPg "github.com/neracastle/auth/internal/repository/action/postgres"
 	"github.com/neracastle/auth/internal/repository/user"
@@ -22,12 +24,14 @@ import (
 
 type serviceProvider struct {
 	conf           *config.Config
-	usecaseService *usecases.Service
+	usecaseService usecases.UserService
 	usersRepo      user.Repository
 	usersCache     user.Cache
 	actionsRepo    action.Repository
 	dbc            db.Client
 	redis          redis.Client
+	consumer       kafka.Consumer
+	producer       sarama.SyncProducer
 }
 
 func newServiceProvider() *serviceProvider {
@@ -101,15 +105,45 @@ func (sp *serviceProvider) ActionsRepository(ctx context.Context) action.Reposit
 	return sp.actionsRepo
 }
 
-func (sp *serviceProvider) UsersService(ctx context.Context) *usecases.Service {
+func (sp *serviceProvider) UsersService(ctx context.Context) usecases.UserService {
 	if sp.usecaseService == nil {
 		sp.usecaseService = usecases.NewService(
 			sp.UsersRepository(ctx),
 			sp.UsersCache(),
 			sp.ActionsRepository(ctx),
 			sp.DbClient(ctx).DB(),
-			time.Second*time.Duration(sp.Config().UsersCacheTTL))
+			sp.KafkaProducer(),
+			sp.KafkaConsumer(),
+			usecases.Config{
+				CacheTTL:     time.Second * time.Duration(sp.Config().UsersCacheTTL),
+				NewUserTopic: sp.Config().NewUsersTopic})
 	}
 
 	return sp.usecaseService
+}
+
+func (sp *serviceProvider) KafkaConsumer() kafka.Consumer {
+	if sp.consumer == nil {
+		cl, err := kafka.NewConsumer(sp.Config().Kafka.Brokers, sp.Config().Kafka.GroupID, sp.Config().Kafka.SaramaConfig())
+		if err != nil {
+			log.Fatalf("failed to create kafka consumer: %v", err)
+		}
+
+		sp.consumer = cl
+	}
+
+	return sp.consumer
+}
+
+func (sp *serviceProvider) KafkaProducer() sarama.SyncProducer {
+	if sp.producer == nil {
+		producer, err := sarama.NewSyncProducer(sp.Config().Kafka.Brokers, sp.Config().Kafka.SaramaConfig())
+		if err != nil {
+			log.Fatalf("failed to create kafka producer: %v", err)
+		}
+
+		sp.producer = producer
+	}
+
+	return sp.producer
 }

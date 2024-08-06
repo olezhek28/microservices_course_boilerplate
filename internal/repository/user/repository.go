@@ -7,6 +7,7 @@ import (
 	domain "github.com/neracastle/auth/internal/domain/user"
 )
 
+// SearchFilter набор полей для фильтрации поиска
 type SearchFilter struct {
 	ID    int64
 	Email string

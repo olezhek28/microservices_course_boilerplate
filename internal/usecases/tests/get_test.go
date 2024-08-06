@@ -120,7 +120,7 @@ func TestCreate(t *testing.T) {
 			repo := tt.usersRepoMock(mc)
 			cache := tt.usersCacheMock(mc)
 
-			srv := usecases2.NewService(repo, cache, nil, nil, time.Minute)
+			srv := usecases2.NewService(repo, cache, nil, nil, nil, nil, usecases2.Config{})
 			res, err := srv.Get(tt.args.ctx, tt.args.req.ID)
 			require.Equal(t, tt.want, res)
 			require.Equal(t, tt.err, err)

@@ -94,7 +94,7 @@ func TestCreate(t *testing.T) {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			mockUserService := tt.userServiceMock(mc)
-			grpcService := grpc_server.NewServer(nil, mockUserService)
+			grpcService := grpc_server.NewServer(mockUserService)
 			res, err := grpcService.Create(tt.args.ctx, tt.args.req)
 			require.Equal(t, tt.want, res)
 			require.Equal(t, tt.err, err)

@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"errors"
 	"testing"
 	"time"
 
@@ -24,8 +23,6 @@ func TestNewUser(t *testing.T) {
 			Email:    gofakeit.Email(),
 			Password: gofakeit.Password(true, true, true, false, false, 8),
 		}
-
-		wrongEmailErr = errors.New("email не может быть пустым")
 	)
 
 	tests := []struct {
@@ -53,7 +50,7 @@ func TestNewUser(t *testing.T) {
 				return dto
 			}(userData),
 			want: nil,
-			err:  wrongEmailErr,
+			err:  user.ErrEmptyEmail,
 		},
 	}
 

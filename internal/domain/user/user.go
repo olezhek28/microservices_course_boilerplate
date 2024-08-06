@@ -1,7 +1,6 @@
 package user
 
 import (
-	"errors"
 	"time"
 )
 
@@ -18,7 +17,7 @@ type User struct {
 // ChangeEmail меняет почту юзера
 func (u *User) ChangeEmail(email string) error {
 	if email == "" {
-		return errors.New("email не может быть пустым")
+		return ErrEmptyEmail
 	}
 
 	u.Email = email
@@ -28,7 +27,7 @@ func (u *User) ChangeEmail(email string) error {
 // ChangePassword меняет пароль
 func (u *User) ChangePassword(password string) error {
 	if password == "" {
-		return errors.New("пароль не может быть пустым")
+		return ErrEmptyPwd
 	}
 
 	u.Password = password
@@ -38,11 +37,11 @@ func (u *User) ChangePassword(password string) error {
 // NewUser создает нового пользователя
 func NewUser(email string, password string, name string) (*User, error) {
 	if email == "" {
-		return nil, errors.New("email не может быть пустым")
+		return nil, ErrEmptyEmail
 	}
 
 	if password == "" {
-		return nil, errors.New("пароль не может быть пустым")
+		return nil, ErrEmptyPwd
 	}
 
 	return &User{

@@ -36,7 +36,7 @@ func (s *Service) Get(ctx context.Context, userID int64) (models.UserDTO, error)
 	}
 
 	//ошибка сохранения в кэш не влияет на выдачу результата, просто залогируем
-	err = s.usersCache.Save(ctx, dbUser, s.cacheTTL)
+	err = s.usersCache.Save(ctx, dbUser, s.Config.CacheTTL)
 	if err != nil {
 		log.Error("failed to save user to redis cache", slog.Int64("user_id", userID), slog.String("error", err.Error()))
 	}

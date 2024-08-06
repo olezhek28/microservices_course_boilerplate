@@ -3,15 +3,55 @@ syntax = "proto3";
 package user_v1;
 
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/neracastle/auth/pkg/user_v1;user_v1";
 
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Users API"
+    version: "1.0.0"
+    contact: {
+      name: "Ivan Semeniv"
+    };
+  };
+
+  host: "HOST_PLACEHOLDER",
+  schemes: HTTP,
+  schemes: HTTPS,
+  consumes: "application/json",
+  produces: "application/json",
+};
+
 service UserV1 {
-  rpc Create(CreateRequest) returns (CreateResponse);
-  rpc Get(GetRequest) returns (GetResponse);
-  rpc Update(UpdateRequest) returns (google.protobuf.Empty);
-  rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      post: "/user/v1/create"
+      body: "*"
+    };
+  }
+
+  rpc Get(GetRequest) returns (GetResponse) {
+    option (google.api.http) = {
+      get: "/user/v1/{id}"
+    };
+  }
+
+  rpc Update(UpdateRequest) returns (UpdateResponse) {
+    option (google.api.http) = {
+      patch: "/user/v1/{id}"
+      body: "*"
+    };
+  }
+
+  rpc Delete(DeleteRequest) returns (DeleteResponse) {
+    option (google.api.http) = {
+      delete: "/user/v1/{id}"
+    };
+  }
 }
 
 enum Role {
@@ -25,7 +65,7 @@ message CreateRequest {
   string email = 2;
   string password = 3;
   string password_confirm = 4;
-  Role role = 5;
+  Role role = 5 [(validate.rules).enum = { in: [1, 2] }];
 }
 
 message CreateResponse {
@@ -33,7 +73,7 @@ message CreateResponse {
 }
 
 message GetRequest {
-  int64 id = 1;
+  int64 id = 1 [(validate.rules).int64.gt = 0];
 }
 
 message GetResponse {
@@ -47,11 +87,15 @@ message GetResponse {
 
 message UpdateRequest {
   int64 id = 1;
-  optional string name = 2;
-  optional string email = 3;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue email = 3;
   Role role = 4;
 }
+
+message UpdateResponse {}
 
 message DeleteRequest {
   int64 id = 1;
 }
+
+message DeleteResponse {}

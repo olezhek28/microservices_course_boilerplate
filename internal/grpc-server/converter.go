@@ -28,8 +28,8 @@ func FromGrpcToCreateUsecase(req *user_v1.CreateRequest) usecases.CreateDTO {
 func FromGrpcToUpdateUsecase(req *user_v1.UpdateRequest) usecases.UpdateDTO {
 	dto := usecases.UpdateDTO{
 		ID:    req.Id,
-		Email: req.GetEmail(),
-		Name:  req.GetName(),
+		Email: req.GetEmail().String(),
+		Name:  req.GetName().String(),
 		Role:  0,
 	}
 
