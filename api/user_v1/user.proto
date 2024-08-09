@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package user_v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "https://github.com/tokenoff03/auth/pkg/auth_v1;auth_v1";
+
+service UserV1 {
+    rpc Create (CreateRequest) returns (CreateResponse);
+    rpc Get (GetRequest) returns (GetResponse);
+    rpc Updated (UpdateRequest) returns (google.protobuf.Empty);
+    rpc Delete(DeleteRequest) returns (google.protobuf.Empty);
+}
+
+// 	string name
+// 	string email
+// 	string password
+// 	string password_confirm
+// 	enum role (требуется создать enum из двух вариантов user и admin)
+
+enum Role {
+    USER = 0;
+    ADMIN = 1;
+}
+
+message UserInfo {
+    string name = 1;
+    string email = 2;
+    string password = 3;
+    string password_confirm = 4;
+    Role role = 5;
+}
+
+message User {
+    int64 id =1;
+    UserInfo info = 2;
+    google.protobuf.Timestamp created_at = 3;
+    google.protobuf.Timestamp updated_at = 4;
+}
+
+message UpdateInfo {
+    google.protobuf.StringValue name = 1;
+    google.protobuf.StringValue email = 2;
+}
+
+message CreateRequest {
+    UserInfo info = 1;
+}
+
+message CreateResponse {
+    int64 id = 1;
+}
+
+message GetRequest {
+    int64 id = 1;
+}
+
+message GetResponse {
+    User user = 1;
+}
+
+message UpdateRequest {
+    int64 id =1;
+    UpdateInfo info =2;
+}
+
+message DeleteRequest {
+    int64 id =1;
+}
+
+
+
+
+
+
